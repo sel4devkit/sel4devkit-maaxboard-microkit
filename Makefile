@@ -32,7 +32,7 @@ DEP_SL4_PATH := ${DEP_PATH}/sel4
 #===========================================================
 .PHONY: usage
 usage: 
-	@echo "usage: make <target> [FORCE=TRUE] [COMPLETE=TRUE]"
+	@echo "usage: make <target> [FORCE=TRUE]"
 	@echo ""
 	@echo "<target> is one off:"
 	@echo "get"
@@ -43,6 +43,16 @@ usage:
 #===========================================================
 # Target
 #===========================================================
+ifneq ($(wildcard ${OUT_PATH}/microkit-sdk-1.3.0),)
+
+.PHONY: get
+get:
+
+.PHONY: all
+all:
+
+else
+
 .PHONY: get
 get: dep-get | ${TMP_PATH}
 	git -C ${TMP_PATH} clone --branch "main" "git@github.com:seL4/microkit.git" microkit
@@ -68,13 +78,8 @@ ${TMP_PATH}:
 ${OUT_PATH}:
 	mkdir ${OUT_PATH}
 
-ifdef COMPLETE
 ${OUT_PATH}/microkit-sdk-1.3.0: ${TMP_PATH}/microkit/release/microkit-sdk-1.3.0 | ${OUT_PATH}
 	cp -r $< $@
-else
-${OUT_PATH}/microkit-sdk-1.3.0:
-	make all COMPLETE=TRUE
-endif
 
 ${TMP_PATH}/microkit/release/microkit-sdk-1.3.0: ${DEP_SL4_PATH}/out/sel4 ${TMP_PATH}/microkit | ${TMP_PATH}
 	# Adjust to use "0x50000000".
@@ -92,6 +97,8 @@ ${TMP_PATH}/microkit/release/microkit-sdk-1.3.0: ${DEP_SL4_PATH}/out/sel4 ${TMP_
 	# Build.
 	. ${TMP_PATH}/pyenv/bin/activate ; cd ${TMP_PATH}/microkit ; python build_sdk.py --sel4=${ROOT_PATH}/${DEP_SL4_PATH}/out/sel4 --skip-docs --boards maaxboard
 	
+endif
+
 .PHONY: clean
 clean:
 	make -C ${DEP_SL4_PATH} clean
