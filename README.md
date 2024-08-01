@@ -1,4 +1,4 @@
-# sel4devkit-maaxboard-microkit-first-boot-hello-world
+# sel4devkit-maaxboard-microkit
 
 ## Purpose
 

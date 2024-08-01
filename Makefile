@@ -5,15 +5,17 @@
 #===========================================================
 # Check
 #===========================================================
-EXP_INFO := sel4devkit-maaxboard-microkit-docker-dev-env 1 *
-CHK_PATH_FILE := /check.mk
-ifeq ($(wildcard ${CHK_PATH_FILE}),)
-    HALT := TRUE
-else
-    include ${CHK_PATH_FILE}
-endif
-ifdef HALT
-    $(error Expected Environment Not Found: ${EXP_INFO})
+ifndef FORCE
+    EXP_INFO := sel4devkit-maaxboard-microkit-docker-dev-env 1 *
+    CHK_PATH_FILE := /check.mk
+    ifeq ($(wildcard ${CHK_PATH_FILE}),)
+        HALT := TRUE
+    else
+        include ${CHK_PATH_FILE}
+    endif
+    ifdef HALT
+        $(error Expected Environment Not Found: ${EXP_INFO})
+    endif
 endif
 
 #===========================================================
@@ -30,21 +32,34 @@ DEP_SL4_PATH := ${DEP_PATH}/sel4
 #===========================================================
 .PHONY: usage
 usage: 
-	@echo "usage: make <target>"
+	@echo "usage: make <target> [FORCE=TRUE] [COMPLETE=TRUE]"
 	@echo ""
 	@echo "<target> is one off:"
+	@echo "get"
 	@echo "all"
 	@echo "clean"
 
 #===========================================================
 # Target
 #===========================================================
+.PHONY: get
+get: dep-get | ${TMP_PATH}
+	git -C ${TMP_PATH} clone --branch "main" "git@github.com:seL4/microkit.git" microkit
+	git -C ${TMP_PATH}/microkit reset --hard "d5fb249bd6900e3b577c6a2f61cea41e2802b1e4"
+
+.PHONY: dep-get
+dep-get:
+	make -C ${DEP_SL4_PATH} get
 
 # Prefer relative. Only use where absolutely essential.
 ROOT_PATH := $(shell dirname $(realpath $(firstword ${MAKEFILE_LIST})))
 
 .PHONY: all
-all: ${OUT_PATH}/microkit-sdk-1.3.0
+all: dep-all ${OUT_PATH}/microkit-sdk-1.3.0
+
+.PHONY: dep-all
+dep-all:
+	make -C ${DEP_SL4_PATH} all
 
 ${TMP_PATH}:
 	mkdir ${TMP_PATH}
@@ -52,16 +67,15 @@ ${TMP_PATH}:
 ${OUT_PATH}:
 	mkdir ${OUT_PATH}
 
-${DEP_SL4_PATH}/out/sel4:
-	make -C ${DEP_SL4_PATH} all
-
+ifdef COMPLETE
 ${OUT_PATH}/microkit-sdk-1.3.0: ${TMP_PATH}/microkit/release/microkit-sdk-1.3.0 | ${OUT_PATH}
 	cp -r $< $@
+else
+${OUT_PATH}/microkit-sdk-1.3.0:
+	make all COMPLETE=TRUE
+endif
 
-${TMP_PATH}/microkit/release/microkit-sdk-1.3.0: ${DEP_SL4_PATH}/out/sel4 | ${TMP_PATH}
-	# Acquire.
-	git -C ${TMP_PATH} clone --branch "main" "git@github.com:seL4/microkit.git" microkit
-	git -C ${TMP_PATH}/microkit reset --hard "d5fb249bd6900e3b577c6a2f61cea41e2802b1e4"
+${TMP_PATH}/microkit/release/microkit-sdk-1.3.0: ${DEP_SL4_PATH}/out/sel4 ${TMP_PATH}/microkit | ${TMP_PATH}
 	# Adjust to use "0x50000000".
 	sed --in-place --expression "s/loader_link_address=0x40480000/loader_link_address=0x50000000/g" ${TMP_PATH}/microkit/build_sdk.py
 	# Adjust to use GCC 12.

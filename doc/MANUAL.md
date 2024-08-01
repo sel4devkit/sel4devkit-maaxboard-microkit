@@ -15,8 +15,9 @@ Show usage instructions:
 make
 ```
 
-Build program:
+Remove previously built output, and rebuild:
 ```
+make reset
 make all
 ```
 
@@ -24,6 +25,30 @@ make all
 
 Presents detailed technical aspects relevant to understanding and maintaining
 this Package.
+
+## Retain Previously Built Output
+
+For consistency and understanding, it is generally desirable to be able to
+build from source. However, in this instance, the build process can be
+particularly time consuming. As a concession, the build output is prepared in
+advance, and retained in the Package. Where this previously built output is
+present, it shall block a rebuild. If the previously built output be removed
+(`make reset`), then a rebuild may be triggered (`make all`).
+
+The retention of build artefacts is ordinarily avoided, and this is reflected
+in the configured set of file types to be ignored. As such, following a
+rebuild, to examine and retain the resulting content (including build
+artefacts), instruct git as follows:
+
+Examine all files, including any that are ordinarily ignored:
+```
+git status --ignored
+```
+
+Force the addition of files, even if they ordinarily ignored:
+```
+git add --force <Path Files>
+```
 
 ## Dependencies
 
