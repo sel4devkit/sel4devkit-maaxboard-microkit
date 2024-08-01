@@ -38,6 +38,7 @@ usage:
 	@echo "get"
 	@echo "all"
 	@echo "clean"
+	@echo "reset"
 
 #===========================================================
 # Target
@@ -95,6 +96,10 @@ ${TMP_PATH}/microkit/release/microkit-sdk-1.3.0: ${DEP_SL4_PATH}/out/sel4 ${TMP_
 clean:
 	make -C ${DEP_SL4_PATH} clean
 	rm -rf ${TMP_PATH}
+
+.PHONY: reset
+reset: clean
+	rm -rf ${OUT_PATH}
 
 ################################################################################
 # End of file
