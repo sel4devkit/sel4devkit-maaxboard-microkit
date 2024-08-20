@@ -41,7 +41,7 @@ usage:
 .PHONY: get
 get: | ${OUT_PATH}
 	git -C ${OUT_PATH} clone --branch "microkit" "git@github.com:seL4/seL4.git" sel4
-	git -C ${OUT_PATH}/sel4 reset --hard "0cdbffec9cf6b4c7c9c57971cbee5a24a70c8fd0"
+	git -C ${OUT_PATH}/sel4 reset --hard "4cae30a6ef166a378d4d23697b00106ce7e4e76f"
 
 .PHONY: all
 all:
