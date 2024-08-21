@@ -54,7 +54,9 @@ all:
 else
 
 .PHONY: get
-get: dep-get | ${TMP_PATH}
+get: dep-get ${TMP_PATH}/microkit
+
+${TMP_PATH}/microkit: | ${TMP_PATH}
 	git -C ${TMP_PATH} clone --branch "main" "git@github.com:seL4/microkit.git" microkit
 	git -C ${TMP_PATH}/microkit reset --hard "395cf0e5be489bbd7586b012188fc1f712cd1a57"
 
