@@ -59,6 +59,8 @@ get: dep-get ${TMP_PATH}/microkit
 ${TMP_PATH}/microkit: | ${TMP_PATH}
 	git -C ${TMP_PATH} clone --branch "main" "git@github.com:seL4/microkit.git" microkit
 	git -C ${TMP_PATH}/microkit reset --hard "395cf0e5be489bbd7586b012188fc1f712cd1a57"
+	# Adjust to use GCC 12.
+	sed --in-place --expression "s/aarch64-none-elf/aarch64-linux-gnu/g" ${TMP_PATH}/microkit/build_sdk.py ${TMP_PATH}/microkit/example/maaxboard/hello/Makefile
 
 .PHONY: dep-get
 dep-get:
@@ -83,9 +85,7 @@ ${OUT_PATH}:
 ${OUT_PATH}/microkit-sdk-1.4.1: ${TMP_PATH}/microkit/release/microkit-sdk-1.4.1 | ${OUT_PATH}
 	cp -r $< $@
 
-${TMP_PATH}/microkit/release/microkit-sdk-1.4.1: ${DEP_SL4_PATH}/out/sel4 ${TMP_PATH}/microkit | ${TMP_PATH}
-	# Adjust to use GCC 12.
-	sed --in-place --expression "s/aarch64-none-elf/aarch64-linux-gnu/g" ${TMP_PATH}/microkit/build_sdk.py ${TMP_PATH}/microkit/example/maaxboard/hello/Makefile
+${TMP_PATH}/microkit/release/microkit-sdk-1.4.1: ${DEP_SL4_PATH}/out/sel4 | ${TMP_PATH}/microkit ${TMP_PATH}
 	# Python.
 	python -m venv ${TMP_PATH}/pyenv
 	. ${TMP_PATH}/pyenv/bin/activate ; pip install --requirement ${TMP_PATH}/microkit/requirements.txt
