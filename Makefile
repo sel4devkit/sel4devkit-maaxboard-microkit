@@ -91,7 +91,7 @@ ${TMP_PATH}/microkit/release/microkit-sdk-1.4.1: ${DEP_SL4_PATH}/out/sel4 | ${TM
 	. ${TMP_PATH}/pyenv/bin/activate ; pip install --requirement ${TMP_PATH}/microkit/requirements.txt
 	# Build.
 	. ${TMP_PATH}/pyenv/bin/activate ; cd ${TMP_PATH}/microkit ; python build_sdk.py --sel4=${ROOT_PATH}/${DEP_SL4_PATH}/out/sel4 --skip-docs --boards maaxboard
-	
+
 endif
 
 .PHONY: clean
